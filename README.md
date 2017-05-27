@@ -33,8 +33,7 @@ _Now, the steps to build a native android openCV project from scratch follow the
    * Choose **.../opencv-android-sdk-v3.0/sdk/java** folder.
    * Unckeck **replace jar**, **replace lib**, **create gradle-style** options.
    
-4. Set the OpenCV library module up to fit your SDK, edit : `Gradle Scripts > build.gradle (Module: openCVLibrary320)`.
-   This means make the contents in the code below match in `Gradle Scripts > build.gradle (Module: openCVLibrary320)` and `Gradle Scripts     > build.gradle (Module: app)`, `build.gradle` files.
+4. Make the gradle settings of `OpenCV library module` same as `your project app module`, so as to fit the SDK of your project module app, i.e., edit : `Gradle Scripts > build.gradle (Module: openCVLibrary320)`. This means ** make the contents in the code block below match in `Gradle Scripts > build.gradle (Module: openCVLibrary320)` and `Gradle Scripts > build.gradle (Module: app)`**, `build.gradle` files.
     ```java
         compileSdkVersion 25 
         buildToolsVersion "25.0.2" 
