@@ -50,7 +50,7 @@ _Now, the steps to build a native android openCV project from scratch follow the
 6. Copy `libs` directory from the path `PATH_TO_YOUR_OPENCV_SDK_DOWNLOAD/sdk/native` to `app/src/main` in your project folder and rename the copied folder to `jniLibs`.
 
 7. Set `build.gradle (Module:app)` script like this:
-    * Add `abiFilters` : make sure the code chunk looks exactly like this (this externalNativeBuild code block is inside defaultConfig         code block):
+    * Add `abiFilters` : make sure the code chunk looks exactly like this (this `externalNativeBuild` code block is inside        `defaultConfig` code block):
     ```java
        externalNativeBuild {
         cmake{
@@ -60,7 +60,7 @@ _Now, the steps to build a native android openCV project from scratch follow the
        } 
     ```
     
-    * Set the source directory location of jniLibs to this directory `app/src/main/jniLibs`, as a result of step 6:
+    * Set the `sourceSets` source directory location of `jniLibs` to this directory : `app/src/main/jniLibs` (as a result of step 6):
       ```java
       sourceSets{
         main{
@@ -100,6 +100,7 @@ _Now, the steps to build a native android openCV project from scratch follow the
     <uses-feature android:name="android.hardware.camera.front"/>
     <uses-feature android:name="android.hardware.camera.front.autofocus"/>
     ```
+    * The `AndroidManifest.xml` file looks similar to       [this]https://github.com/roshanpoudyal/Count_Coin/blob/master/app/src/main/AndroidManifest.xml) now.
           
 # References :
    * http://opencv.org/ : OpenCV is released under a BSD license and hence it’s free for both academic and commercial use. It has C++, C, Python and Java interfaces and supports Windows, Linux, Mac OS, iOS and Android. OpenCV was designed for computational efficiency and with a strong focus on real-time applications. Written in optimized C/C++, the library can take advantage of multi-core processing. Enabled with OpenCL, it can take advantage of the hardware acceleration of the underlying heterogeneous compute platform.
