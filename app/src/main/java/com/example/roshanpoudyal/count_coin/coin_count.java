@@ -2,12 +2,16 @@ package com.example.roshanpoudyal.count_coin;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -17,7 +21,7 @@ import org.opencv.core.Mat;
 
 import static com.example.roshanpoudyal.count_coin.R.layout.activity_coin_count;
 
-public class coin_count extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class coin_count extends AppCompatActivity{
 
     private static final String TAG = "OCVSample::Activity";
     private CameraBridgeViewBase _cameraBridgeViewBase;
@@ -31,7 +35,7 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
                     // Load ndk built module, as specified in moduleName in build.gradle
                     // after opencv initialization
                     System.loadLibrary("native-lib");
-                    _cameraBridgeViewBase.enableView();
+
                 }
                 break;
                 default: {
@@ -48,20 +52,15 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(activity_coin_count);
 
-        // Permissions for Android 6+
-        ActivityCompat.requestPermissions(coin_count.this,
-                new String[]{Manifest.permission.CAMERA},
-                1);
-
-        _cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.main_surface);
-        _cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
-        _cameraBridgeViewBase.setCvCameraViewListener(this);
+        // get imageview
+        // ImageView cvimgcontainer = (ImageView)findViewById(R.id.image_view);
+        //set image to imageview
+        // cvimgcontainer.setImageResource(R.drawable.shapedetect);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        disableCamera();
     }
 
     @Override
@@ -76,47 +75,18 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(coin_count.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
-                }
-                return;
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
     public void onDestroy() {
         super.onDestroy();
-        disableCamera();
     }
 
-    public void disableCamera() {
-        if (_cameraBridgeViewBase != null)
-            _cameraBridgeViewBase.disableView();
-    }
-
-    public void onCameraViewStarted(int width, int height) {
-    }
-
-    public void onCameraViewStopped() {
-    }
-
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        Mat matGray = inputFrame.gray();
-        salt(matGray.getNativeObjAddr(), 2000);
-        return matGray;
+    public void callforshapedetect() {
+        // see https://stackoverflow.com/a/30207310 for accessing images as bitmap
+        //first get shape detect image as bitmap
+        Bitmap shapedetectbmp = BitmapFactory.decodeResource(getResources(), R.drawable.shapedetect);
+        // convert it to mat before sending to jni function
+        
+        // and then pass it to jni function salt
+        // salt(matGray.getNativeObjAddr(), 2000);
     }
 
     public native void salt(long matAddrGray, int nbrElem);
