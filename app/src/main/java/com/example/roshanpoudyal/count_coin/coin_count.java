@@ -15,79 +15,100 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import static com.example.roshanpoudyal.count_coin.R.layout.activity_coin_count;
 
-public class coin_count extends AppCompatActivity{
+public class coin_count extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2{
 
-    private static final String TAG = "OCVSample::Activity";
-    private CameraBridgeViewBase _cameraBridgeViewBase;
+    private static final String TAG = "coin_count::Activity";
 
-    private BaseLoaderCallback _baseLoaderCallback = new BaseLoaderCallback(this) {
+    JavaCameraView javaCameraView;
+
+    Mat mRgba, imgGray, imgCanny;
+
+    BaseLoaderCallback mLoaderCallBack = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS: {
-                    Log.i(TAG, "OpenCV loaded successfully");
-                    // Load ndk built module, as specified in moduleName in build.gradle
-                    // after opencv initialization
-                    System.loadLibrary("native-lib");
-
+            switch (status){
+                case BaseLoaderCallback.SUCCESS : {
+                    javaCameraView.enableView();
+                    break;
                 }
-                break;
-                default: {
+
+                default : {
                     super.onManagerConnected(status);
+                    break;
                 }
             }
+            super.onManagerConnected(status);
         }
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle SavedInstances){
+        super.onCreate(SavedInstances);
+        setContentView(R.layout.activity_coin_count);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(activity_coin_count);
+        // Permissions for Android 6+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},1);
 
-        // get imageview
-        // ImageView cvimgcontainer = (ImageView)findViewById(R.id.image_view);
-        //set image to imageview
-        // cvimgcontainer.setImageResource(R.drawable.shapedetect);
+        javaCameraView = (JavaCameraView)findViewById(R.id.java_camera_view);
+        javaCameraView.setVisibility(SurfaceView.VISIBLE);
+        javaCameraView.setCvCameraViewListener(this);
     }
 
     @Override
-    public void onPause() {
+    protected void onPause(){
         super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, _baseLoaderCallback);
-        } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            _baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        if(javaCameraView!=null){
+            javaCameraView.disableView();
         }
     }
 
-    public void onDestroy() {
+    @Override
+    protected void onDestroy(){
         super.onDestroy();
+        if(javaCameraView!=null){
+            javaCameraView.disableView();
+        }
     }
 
-    public void callforshapedetect() {
-        // see https://stackoverflow.com/a/30207310 for accessing images as bitmap
-        //first get shape detect image as bitmap
-        Bitmap shapedetectbmp = BitmapFactory.decodeResource(getResources(), R.drawable.shapedetect);
-        // convert it to mat before sending to jni function
-        
-        // and then pass it to jni function salt
-        // salt(matGray.getNativeObjAddr(), 2000);
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(OpenCVLoader.initDebug()){
+            Log.i(TAG, "OpenCV Loaded Successfully.");
+            mLoaderCallBack.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+        else{
+            Log.i(TAG, "OpenCV could not be Loaded.");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_2_0,this,mLoaderCallBack);
+        }
     }
 
-    public native void salt(long matAddrGray, int nbrElem);
+    @Override
+    public void onCameraViewStarted(int width, int height) {
+        mRgba = new Mat(height, width, CvType.CV_8UC4);
+        imgGray = new Mat(height, width, CvType.CV_8UC1);
+        imgCanny = new Mat(height, width, CvType.CV_8UC1);
+    }
+
+    @Override
+    public void onCameraViewStopped() {
+        mRgba.release();
+    }
+
+    @Override
+    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        mRgba = inputFrame.rgba();
+        Imgproc.cvtColor(mRgba, imgGray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.Canny(imgGray, imgCanny, 50, 150);
+        return imgCanny;
+    }
 }
