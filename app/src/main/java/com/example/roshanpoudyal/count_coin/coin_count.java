@@ -30,7 +30,7 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
 
     JavaCameraView javaCameraView;
 
-    Mat mRgba, imgGray, imgCanny;
+    Mat matRgba, matGray, matCanny;
 
     BaseLoaderCallback mLoaderCallBack = new BaseLoaderCallback(this) {
         @Override
@@ -61,6 +61,9 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
         javaCameraView = (JavaCameraView)findViewById(R.id.java_camera_view);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(this);
+
+        Toast toast=Toast.makeText(getApplicationContext(),findCoins(),Toast.LENGTH_LONG);
+        toast.show();
     }
 
     @Override
@@ -94,21 +97,31 @@ public class coin_count extends AppCompatActivity implements CameraBridgeViewBas
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
-        imgGray = new Mat(height, width, CvType.CV_8UC1);
-        imgCanny = new Mat(height, width, CvType.CV_8UC1);
+        matRgba = new Mat();
+        // matGray = new Mat();
+        // matRgba = new Mat(height, width, CvType.CV_8UC1);
+        // matGray = new Mat(height, width, CvType.CV_8UC1);
+        // matCanny = new Mat(height, width, CvType.CV_8UC1);
+
     }
 
     @Override
     public void onCameraViewStopped() {
-        mRgba.release();
+        matRgba.release();
     }
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        mRgba = inputFrame.rgba();
-        Imgproc.cvtColor(mRgba, imgGray, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.Canny(imgGray, imgCanny, 50, 150);
-        return imgCanny;
+        matRgba = inputFrame.rgba();
+        //findCoins(matRgba.getNativeObjAddr(),matGray.getNativeObjAddr());
+        // Imgproc.cvtColor(mRgba, imgGray, Imgproc.COLOR_RGB2GRAY);
+        // Imgproc.Canny(imgGray, imgCanny, 50, 150);
+
+        return matRgba;
     }
+
+    // this is native function call
+    // public native static String findCoins(long matAddrRgba, long matAddrGray);
+
+    public native static String findCoins();
 }
